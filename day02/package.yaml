@@ -1,6 +1,6 @@
-name:                day01
+name:                day02
 version:             0.1.0.0
-github:              "Galactic-Cat/aoc2024/day01"
+github:              "Galactic-Cat/aoc2024/day02"
 license:             CC0
 author:              "Galactic-Cat"
 maintainer:          "Galactic-Cat"
@@ -37,7 +37,7 @@ library:
   source-dirs: src
 
 executables:
-  day01-exe:
+  day02-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -45,10 +45,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - day01
+    - day02
 
 # tests:
-#   day01-test:
+#   day02-test:
 #     main:                Spec.hs
 #     source-dirs:         test
 #     ghc-options:
@@ -56,4 +56,4 @@ executables:
 #     - -rtsopts
 #     - -with-rtsopts=-N
 #     dependencies:
-#     - day01
+#     - day02
