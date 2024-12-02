@@ -1,6 +1,6 @@
 module Parse (parse) where
-  parse :: String -> IO [String]
+  parse :: String -> IO [[Int]]
   parse path =
     do
       contents <- readFile path
-      return . words $ contents
+      return . map (map read . words) . lines $ contents
