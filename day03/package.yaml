@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/Gala
 
 dependencies:
 - base >= 4.7 && < 5
+- regex-tdfa
 
 ghc-options:
 - -Wall
@@ -57,3 +58,5 @@ executables:
 #     - -with-rtsopts=-N
 #     dependencies:
 #     - day03
+
+
