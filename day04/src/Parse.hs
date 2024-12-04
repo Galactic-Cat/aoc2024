@@ -3,4 +3,4 @@ module Parse (parse) where
   parse path =
     do
       contents <- readFile path
-      return . words $ contents
+      return . lines $ contents
