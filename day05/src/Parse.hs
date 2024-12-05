@@ -4,10 +4,10 @@ module Parse (parse) where
   import Solution (Rule (Rule))
 
   ruleRegex :: String
-  ruleRegex = "\\d+\\|\\d+"
+  ruleRegex = "[0-9]+\\|[0-9]+"
   
   numberRegex :: String
-  numberRegex = "\\d+"
+  numberRegex = "[0-9]+"
 
   parse :: String -> IO ([Rule], [[Int]])
   parse path =
