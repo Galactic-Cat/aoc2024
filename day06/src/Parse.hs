@@ -32,7 +32,7 @@ module Parse (parse) where
   parseWorld :: [String] -> ([[Tile]], Guard)
   parseWorld s = 
     let (ls, g) = lined (length s - 1)
-    in  (ls, assert g)
+    in  (reverse ls, assert g)
     where
       assert (Just x) = x
       assert Nothing  = error "Guard not found"
