@@ -1,5 +1,9 @@
-module Solution (solve, Tile (File, Free)) where
+module Solution (solve, Tile (File, Free)) where  
   data Tile = File Int | Free
+
+  instance (Show Tile) where
+    show (File n) = show n
+    show Free     = "."
 
   checkSum :: [Tile] -> Int -> Int
   checkSum []          _ = 0
@@ -18,7 +22,10 @@ module Solution (solve, Tile (File, Free)) where
   solve ts = checkSum (compact ts) 0
 
   pop :: [Tile] -> Maybe (Tile, [Tile])
-  pop tss = pop' (reverse tss)
+  pop tss =
+    case pop' (reverse tss) of
+      Nothing        -> Nothing
+      Just (rt, rts) -> Just (rt, reverse rts)
     where
       pop' []              = Nothing
       pop' (t@(File _):ts) = Just (t, Free : ts)

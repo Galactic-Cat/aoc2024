@@ -6,4 +6,7 @@ module Main (main) where
 
   main :: IO ()
   main = do
-    args <- getArgs
+    args  <- getArgs
+    input <- parse (head args)
+
+    print $ "Part 1: " ++ (show $ solve input)
