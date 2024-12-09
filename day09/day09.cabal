@@ -23,7 +23,9 @@ source-repository head
 library
   exposed-modules:
       Parse
+      Parse2
       Solution
+      Solution2
   other-modules:
       Paths_day09
   hs-source-dirs:
