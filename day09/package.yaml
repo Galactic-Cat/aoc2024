@@ -1,6 +1,6 @@
-name:                dayXX
+name:                day09
 version:             0.1.0.0
-github:              "Galactic-Cat/aoc2024/dayXX"
+github:              "Galactic-Cat/aoc2024/day09"
 license:             CC0
 author:              "Galactic-Cat"
 maintainer:          "Galactic-Cat"
@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/Gala
 
 dependencies:
 - base >= 4.7 && < 5
+- regex-tdfa
 
 ghc-options:
 - -Wall
@@ -37,7 +38,7 @@ library:
   source-dirs: src
 
 executables:
-  dayXX-exe:
+  day09-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -45,10 +46,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - dayXX
+    - day09
 
 # tests:
-#   dayXX-test:
+#   day09-test:
 #     main:                Spec.hs
 #     source-dirs:         test
 #     ghc-options:
@@ -56,4 +57,4 @@ executables:
 #     - -rtsopts
 #     - -with-rtsopts=-N
 #     dependencies:
-#     - dayXX
+#     - day09
