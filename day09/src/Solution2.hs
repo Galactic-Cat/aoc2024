@@ -1,12 +1,5 @@
 module Solution2 (solve2, Tile (File, Free)) where
-  import Control.Monad (join)
-  import Debug.Trace (trace)
-  
   data Tile = File Int Int | Free Int
-
-  instance (Show Tile) where
-    show (File n s) = join $ replicate s (show n)
-    show (Free s)   = replicate s '.'
 
   checkSum :: [Tile] -> Int -> Int
   checkSum []            _ = 0
@@ -16,37 +9,32 @@ module Solution2 (solve2, Tile (File, Free)) where
   checkSum (File x s:ts) i = (x * i) + checkSum (File x (s - 1):ts) (i + 1)
 
   compact :: [Tile] -> [Tile]
-  compact []              = []
-  compact (t@(Free s):ts) =
-    case pop ts s of
-      Nothing        -> t  : compact ts
-      Just (t', ts') -> t' : compact ts'
-  compact (t         :ts) = t : compact ts
+  compact [] = []
+  compact (t@(File _ s):ts) =
+    case fit t (reverse ts) of
+      Just ts' -> compact (Free s : reverse (joinFree ts'))
+      Nothing  -> t : compact ts
+  compact (t           :ts) = t : compact ts
+
+  fit :: Tile -> [Tile] -> Maybe [Tile]
+  fit _            []                = Nothing
+  fit f            (t@(File _ _):ts) =
+    case fit f ts of
+      Just ts' -> Just $ t : ts'
+      Nothing  -> Nothing
+  fit f@(File _ s) (t@(Free z)  :ts)
+    | s == z    = Just $ f : ts
+    | s < z     = Just $ f : Free (z - s) : ts
+    | otherwise =
+      case fit f ts of
+        Just ts' -> Just $ t : ts'
+        Nothing  -> Nothing
+  fit _            _                = error "Impossible state for fit"
+
+  joinFree :: [Tile] -> [Tile]
+  joinFree []                   = []
+  joinFree (Free as:Free bs:ts) = joinFree (Free (as + bs):ts)
+  joinFree (t      :ts)         = t : joinFree ts
 
   solve2 :: [Tile] -> Int
-  solve2 ts = checkSum (qt $ compact ts) 0
-
-  pop :: [Tile] -> Int -> Maybe (Tile, [Tile])
-  pop tss s =
-    case pop' (reverse tss) of
-      Nothing        -> Nothing
-      Just (rt, rts) -> Just (rt, reverse rts)
-    where
-      pop' :: [Tile] -> Maybe (Tile, [Tile])
-      pop' []                = Nothing
-      pop' (t@(File _ s'):ts)
-        | s' <= s = case ts of
-          (Free z : ts') -> Just (t, Free (s' + z): ts')
-          _              -> Just (t, Free s'      : ts)
-      pop' (t@(Free a)   :ts) =
-        case pop' ts of
-          Nothing                 -> Nothing
-          Just (t', Free b : ts') -> Just (t', Free (a + b) : ts')
-          Just (t', ts')          -> Just (t', t:ts')
-      pop' (t            :ts) =
-        case pop' ts of
-          Nothing                 -> Nothing
-          Just (t', ts')          -> Just (t', t:ts')
-
-  qt :: Show a => a -> a
-  qt x = trace (show x) x
+  solve2 ts = checkSum (reverse $ compact (reverse ts)) 0
