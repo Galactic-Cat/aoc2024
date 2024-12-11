@@ -1,4 +1,4 @@
-module Solution (Grid, Row, solve, Tile (Antenna, Empty)) where
+module Solution (Grid, Row, solve, solve2, Tile (Antenna, Empty)) where
   type Coordinate = (Int, Int)
   type Grid = [Row]
   type Row = [Tile]
@@ -19,6 +19,17 @@ module Solution (Grid, Row, solve, Tile (Antenna, Empty)) where
   getAntis a@(ax, ay) b@(bx, by) =
     let (h, v) = getAngle a b
     in  ((ax - h, ay - v), (bx + h, by + v))
+
+  getHarmonicAntis :: Grid -> Coordinate -> Coordinate -> [Coordinate]
+  getHarmonicAntis g a b =
+    let (h, v) = getAngle a b
+    in  traceAntis g a (-h, -v) ++ traceAntis g b (h, v) ++ [a, b]
+
+  getTile :: Grid -> Coordinate -> Maybe Tile
+  getTile g (x, y) =
+    if   x >= 0 && y >= 0 && x < length (head g) && y < length g
+    then Just $ (g !! y) !! x
+    else Nothing
 
   findAntennas :: Grid -> Char -> [Coordinate]
   findAntennas tg l = find tg 0
@@ -63,6 +74,15 @@ module Solution (Grid, Row, solve, Tile (Antenna, Empty)) where
         where
           antennas = findAntennas g l
 
+  solve2 :: (Grid, [Char]) -> Int
+  solve2 (g, lss) = countAntis $ solve2' g lss
+    where
+      solve2' :: Grid -> [Char] -> Grid
+      solve2' ng []     = ng
+      solve2' ng (l:ls) = solve2' (solveHarmonicAntennas ng antennas) ls
+        where
+          antennas = findAntennas g l
+
   solveAntenna :: Grid -> Coordinate -> [Coordinate] -> Grid
   solveAntenna g _ []     = g
   solveAntenna g a (b:bs) =
@@ -73,3 +93,22 @@ module Solution (Grid, Row, solve, Tile (Antenna, Empty)) where
   solveAntennas g []     = g
   solveAntennas g [_]    = g  
   solveAntennas g (c:cs) = solveAntennas (solveAntenna g c cs) cs
+
+  solveHarmonicAntenna :: Grid -> Coordinate -> [Coordinate] -> Grid
+  solveHarmonicAntenna g _ []     = g
+  solveHarmonicAntenna g a (b:bs) =
+    let ns = getHarmonicAntis g a b
+    in  solveHarmonicAntenna (foldr (\x g' -> setTile g' x Antinode) g ns) a bs
+
+  solveHarmonicAntennas :: Grid -> [Coordinate] -> Grid
+  solveHarmonicAntennas g []     = g
+  solveHarmonicAntennas g [_]    = g
+  solveHarmonicAntennas g (c:cs) = solveHarmonicAntennas (solveHarmonicAntenna g c cs) cs
+
+  traceAntis :: Grid -> Coordinate -> (Int, Int) -> [Coordinate]
+  traceAntis g (x, y) a@(h, v) =
+    case getTile g (x + h, y + v) of
+      Just _  -> c' : traceAntis g c' a
+      Nothing -> []
+    where
+      c' = (x + h, y + v)
