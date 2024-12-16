@@ -9,6 +9,17 @@ module Solution (Coordinate, Direction (East), Grid, Reindeer (Reindeer), solve,
   data Reindeer = Reindeer Coordinate Direction
   data Tile = Floor | Goal | Wall
 
+  best :: Ord a => Maybe a -> Maybe a -> Maybe a
+  best Nothing     Nothing     = Nothing
+  best a@(Just _)  Nothing     = a
+  best Nothing     b@(Just _)  = b
+  best a@(Just a') b@(Just b')
+    | a' < b'   = a
+    | otherwise = b
+
+  fst3 :: (a, b, c) -> a
+  fst3 (x, _, _) = x
+
   directions :: [Direction]
   directions = North : East : South : West : directions
 
@@ -44,7 +55,15 @@ module Solution (Coordinate, Direction (East), Grid, Reindeer (Reindeer), solve,
   search g (Reindeer c d) v a m
     | a >= m     = Nothing
     | isGoal g c = Just a
-    | otherwise  = map (\c' a' d' -> search g (Reindeer c' d') a')
+    | otherwise  = search' (navigate g c v d)
+    where
+      search' :: [(Coordinate, Int, Direction)] -> Maybe Int
+      search' []                = Nothing
+      search' ((c', a', d'):xs) =
+        let v' = Set.insert c' v in
+        case search g (Reindeer c' d') v a
+
+    
 
   solve :: IO ()
   solve = print "No solution"
