@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# LANGUAGE GADTs #-}
 
-module PriorityQueue (emptyAsc, emptyDsc, pop, push) where
+module PriorityQueue (emptyAsc, emptyDsc, peek, pop, PriorityQueue, push) where
   data PriorityQueue k v where
     AscQueue :: Ord k => [(k, v)] -> PriorityQueue k v
     DscQueue :: Ord k => [(k, v)] -> PriorityQueue k v
@@ -11,6 +11,18 @@ module PriorityQueue (emptyAsc, emptyDsc, pop, push) where
 
   emptyDsc :: Ord k => PriorityQueue k v
   emptyDsc = DscQueue []
+
+  peek :: PriorityQueue k v -> Maybe v
+  peek (AscQueue []        ) = Nothing
+  peek (AscQueue ((_, v):_)) = Just v
+  peek (DscQueue []        ) = Nothing
+  peek (DscQueue ((_, v):_)) = Just v
+
+  pop :: PriorityQueue k v -> (Maybe v, PriorityQueue k v)
+  pop q@(AscQueue []         ) = (Nothing, q)
+  pop q@(DscQueue []         ) = (Nothing, q)
+  pop   (AscQueue ((_, v):qs)) = (Just v , AscQueue qs)
+  pop   (DscQueue ((_, v):qs)) = (Just v , DscQueue qs)
 
   push :: Ord k => k -> v -> PriorityQueue k v -> PriorityQueue k v
   push k v (AscQueue [])            = AscQueue [(k, v)]
@@ -25,15 +37,3 @@ module PriorityQueue (emptyAsc, emptyDsc, pop, push) where
     | otherwise =
       let (DscQueue vs') = push k v (DscQueue vs) in
         DscQueue ((k', v') : vs')
-
-  pop :: PriorityQueue k v -> (Maybe v, PriorityQueue k v)
-  pop q@(AscQueue []         ) = (Nothing, q)
-  pop q@(DscQueue []         ) = (Nothing, q)
-  pop   (AscQueue ((_, v):qs)) = (Just v , AscQueue qs)
-  pop   (DscQueue ((_, v):qs)) = (Just v , DscQueue qs)
-
-  peek :: PriorityQueue k v -> Maybe v
-  peek (AscQueue []        ) = Nothing
-  peek (AscQueue ((_, v):_)) = Just v
-  peek (DscQueue []        ) = Nothing
-  peek (DscQueue ((_, v):_)) = Just v
