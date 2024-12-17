@@ -23,6 +23,7 @@ source-repository head
 library
   exposed-modules:
       Parse
+      PriorityQueue
       Solution
   other-modules:
       Paths_day16
