@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# LANGUAGE GADTs #-}
 
-module PriorityQueue (emptyAsc, emptyDsc, peek, pop, PriorityQueue, push) where
+module PriorityQueue (emptyAsc, emptyDsc, peek, pop, PriorityQueue, push, singletonAsc, singletonDsc) where
   data PriorityQueue k v where
     AscQueue :: Ord k => [(k, v)] -> PriorityQueue k v
     DscQueue :: Ord k => [(k, v)] -> PriorityQueue k v
@@ -37,3 +37,9 @@ module PriorityQueue (emptyAsc, emptyDsc, peek, pop, PriorityQueue, push) where
     | otherwise =
       let (DscQueue vs') = push k v (DscQueue vs) in
         DscQueue ((k', v') : vs')
+
+  singletonAsc :: Ord k => k -> v -> PriorityQueue k v
+  singletonAsc k v = AscQueue [(k, v)]
+
+  singletonDsc :: Ord k => k -> v -> PriorityQueue k v
+  singletonDsc k v = DscQueue [(k, v)]
