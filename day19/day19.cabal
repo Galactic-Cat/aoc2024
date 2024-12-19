@@ -24,6 +24,7 @@ library
   exposed-modules:
       Parse
       Solution
+      Tree
   other-modules:
       Paths_day19
   hs-source-dirs:
