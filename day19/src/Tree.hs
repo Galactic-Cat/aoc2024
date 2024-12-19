@@ -1,7 +1,9 @@
-module Tree (Pattern, PatternTree, add, matchFull, empty) where
+module Tree (Pattern, PatternTree, add, match, matchPartial, matchRepeat, empty) where
   import Data.Maybe (fromMaybe)
+  import Debug.Trace (trace)
 
   data Pattern = Pattern Char PatternTree
+    deriving (Show)
   type PatternTree = (Maybe Pattern, Maybe Pattern, Maybe Pattern, Maybe Pattern, Maybe Pattern, Bool)
 
   add :: String -> PatternTree -> PatternTree
@@ -61,27 +63,25 @@ module Tree (Pattern, PatternTree, add, matchFull, empty) where
   inSubTree :: Pattern -> (PatternTree -> PatternTree) -> Pattern
   inSubTree (Pattern c t) f = Pattern c $ f t
 
-  isEmpty :: PatternTree -> Bool
-  isEmpty (Nothing, Nothing, Nothing, Nothing, Nothing, _) = True
-  isEmpty _                                                = False
-
-  matchFull :: String -> PatternTree -> Bool
-  matchFull []     t = getEnd t
-  matchFull (c:cs) t =
+  match :: String -> PatternTree -> Bool
+  match []     t = getEnd t
+  match (c:cs) t =
     case get t (charToInt c) of
-      Just (Pattern _ pt) -> matchFull cs pt
+      Just (Pattern _ pt) -> match cs pt
       Nothing             -> False
 
-  match :: String -> PatternTree -> [(String, String)]
-  match = match' []
+  matchPartial :: String -> PatternTree -> [(String, String)]
+  matchPartial = match' []
     where
       match' :: String -> String -> PatternTree -> [(String, String)]
       match' a []     t = [(a, []) | getEnd t]
-      match' a (c:cs) t = _
-
-        where
-          ms =
+      match' a (c:cs) t =
+        case get t (charToInt c) of
+          Just (Pattern _ t') -> 
             if   getEnd t
-            then (a ++ [c], cs)
-            else
-        
+            then (a, c:cs) : match' (a ++ [c]) cs t'
+            else match' (a ++ [c]) cs t'
+          Nothing             -> [(a, c:cs) | getEnd t]
+
+  zz :: Show a => a -> a
+  zz x = trace (show x) x
