@@ -5,3 +5,4 @@ Solutions I've yet to make in Haskell (if they're too hard I make them in Python
 - Day 12
 - Day 15
 - Day 16, Part 2
+- Day 19, Part 2
