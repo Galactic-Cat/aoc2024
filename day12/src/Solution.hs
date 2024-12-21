@@ -1,4 +1,4 @@
-module Solution (Grid, Row, solve) where
+module Solution (Grid, solve) where
   import Prelude hiding (Left, Right)
   import qualified Data.Set as Set
   import Data.Maybe (fromMaybe)
@@ -7,30 +7,39 @@ module Solution (Grid, Row, solve) where
   data Direction = Up | Right | Down | Left
   type Grid = [Row]
   type Plot = Char
+  type Region = Set.Set Coordinate
   type Row = [Plot]
 
   coordinates :: Grid -> [Coordinate]
-  coordinates g = [(x, y) | x <- [0..(length (head g))], y <- [0..(length g)]]
+  coordinates g = [(x, y) | x <- [0..(length (head g) - 1)], y <- [0..(length g - 1)]]
 
   directions :: [Direction]
   directions = Up : Right : Down : Left : directions
 
-  findRegions :: Grid -> [Coordinate] -> Set.Set Char -> [(Char, Set.Set Coordinate)]
+  findCost :: Grid -> Region -> Int
+  findCost g r = length r * findPerimeter g r
+
+  findPerimeter :: Grid -> Region -> Int
+  findPerimeter g = sum . Set.map getBoundries
+    where
+      getBoundries = (4 -) . length . lookAround g
+
+  findRegions :: Grid -> [Coordinate] -> [Region]
   findRegions _ []     = []
   findRegions g (c:cs) = 
     case getPlot g c of
       Just '.' -> findRegions g cs
-      Just z   ->
-        let r@(n, ps) = findRegion g c
-        in  r : findRegions (foldr (\c' g' -> setPlot g' c' '.') g ps) cs
-      Nothing  -> _
+      Just _   ->
+        let r = findRegion g c
+        in  r : findRegions (foldr (\c' g' -> setPlot g' c' '.') g r) cs
+      Nothing  -> error "findRegions out of bounds"
 
-  findRegion :: Grid -> Coordinate -> (Char, Set.Set Coordinate)
+  findRegion :: Grid -> Coordinate -> Region
   findRegion g c =
     case getPlot g c of
-      Just '.' -> ('.', Set.empty)
-      Just z   -> (z, findRegion' Set.empty (Set.singleton c))
-      Nothing  -> ('.', Set.empty)
+      Just '.' -> Set.empty
+      Just _   -> findRegion' Set.empty (Set.singleton c)
+      Nothing  -> Set.empty
     where
       findRegion' :: Set.Set Coordinate -> Set.Set Coordinate -> Set.Set Coordinate
       findRegion' r d
@@ -74,5 +83,5 @@ module Solution (Grid, Row, solve) where
       setPlotRow (p:ps) x' = p : setPlotRow ps (x' - 1)
   setPlot (r:rs) (x, y) v = r : setPlot rs (x, y - 1) v
 
-  solve :: Grid -> IO ()
-  solve _ = print "No solution"
+  solve :: Grid -> Int
+  solve g = sum $ map (findCost g) (findRegions g (coordinates g))

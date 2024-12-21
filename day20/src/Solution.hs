@@ -1,4 +1,5 @@
-module Solution (Coordinate, solve, Space, Walls) where
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+module Solution (Coordinate, solve, solve2, Space) where
   import qualified Data.Map as M
   import qualified Data.Set as S
 
@@ -9,36 +10,23 @@ module Solution (Coordinate, solve, Space, Walls) where
   type History = M.Map Coordinate (Cost, Coordinate)
   type Queue = P.PriorityQueue Cost Coordinate
   type Space = S.Set Coordinate
-  type Walls = S.Set Coordinate
 
   assertList :: [Maybe a] -> [a]
   assertList []          = []
   assertList (Just x:xs) = x : assertList xs
   assertList (_     :xs) = assertList xs
 
-  cheat :: Coordinate -> History -> Space -> Walls -> [(Coordinate, Int)]
-  cheat c h s w = assertList $ concatMap cheat' (filter (`S.member` w) (neighbours c))
+  cheat :: (Coordinate, Cost) -> [(Coordinate, Cost)] -> Int -> [Int]
+  cheat (c, p) s m =
+    let s' = filter ((p <) . snd) s in
+      assertList $ map cheat' s'
     where
-      cheat' :: Coordinate -> [Maybe (Coordinate, Int)]
-      cheat' wc = map cheat'' (filter (`S.member` s) (neighbours wc))
-        where
-          cheat'' :: Coordinate -> Maybe (Coordinate, Int)
-          cheat'' cwc =
-            case (M.lookup c h, M.lookup cwc h) of
-              (Nothing    , _           ) -> error "Weird scenario in cheat"
-              (_          , Nothing     ) -> Nothing
-              (Just (p, _), Just (p', _)) ->
-                if   p < p'
-                then Just (wc, p' - p)
-                else Nothing
-
-  coordinates :: Int -> Int -> Space
-  coordinates w 0 = coordinatesLine w 0
-  coordinates w h = S.union (coordinatesLine w h) (coordinates w (h - 1))
-
-  coordinatesLine :: Int -> Int -> Space
-  coordinatesLine 0 y = S.singleton (0, y)
-  coordinatesLine x y = S.insert (x, y) (coordinatesLine (x - 1) y)
+      cheat' :: (Coordinate, Cost) -> Maybe Int
+      cheat' (c', p') =
+        let m' = manhattan c c' in
+          if   (m' <= m) && (p + m' < p')
+          then Just (p' - (p + m'))
+          else Nothing
 
   dijkstra :: History -> Queue -> Space -> History
   dijkstra h q s =
@@ -62,11 +50,22 @@ module Solution (Coordinate, solve, Space, Walls) where
       then (M.update (\_ -> Just (p + 1, c)) c' h, P.push (p + 1) c' q, S.insert c' s)
       else (h                                    , q                  , S.insert c' s)
 
+  manhattan :: Coordinate -> Coordinate -> Int
+  manhattan (ax, ay) (bx, by) = abs (ax - bx) + abs (ay - by)
+
   neighbours :: Coordinate -> [Coordinate]
   neighbours (x, y) = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
 
-  solve :: (Space, Walls, Coordinate, Coordinate) -> Int
-  solve (s, w, i, _) =
-    let h = dijkstra M.empty (P.singletonAsc 0 i) s in
-    let cheats = concatMap (\c -> cheat c h s w) (M.keys h) in
-      length (filter (> 100) (map snd cheats))
+  solve :: (Space, Coordinate) -> Int
+  solve (s, i) =
+    let h  = dijkstra M.empty (P.singletonAsc 0 i) s in
+    let hs = map (\(c, (p, _)) -> (c, p)) (M.toList h) in
+    let cs = concatMap (\c -> cheat c hs 2) hs in
+      length (filter (>= 100) cs)
+
+  solve2 :: (Space, Coordinate) -> Int
+  solve2 (s, i) =
+    let h  = dijkstra M.empty (P.singletonAsc 0 i) s in
+    let hs = map (\(c, (p, _)) -> (c, p)) (M.toList h) in
+    let cs = concatMap (\c -> cheat c hs 20) hs in
+      length (filter (>= 100) cs)

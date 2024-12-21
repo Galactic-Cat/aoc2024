@@ -1,5 +1,5 @@
 module Parse (parse) where
-  import Solution (Grid, Plot (Plot), Row)
+  import Solution (Grid)
 
   parse :: String -> IO Grid
   parse path =
