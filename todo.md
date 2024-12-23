@@ -8,3 +8,4 @@ Solutions I've yet to make in Haskell (if they're too hard I make them in Python
 - Day 19, Part 2
 - Day 21
 - Day 22
+- Day 23
