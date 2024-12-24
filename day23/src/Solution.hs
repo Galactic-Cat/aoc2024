@@ -2,7 +2,7 @@
 module Solution (solve) where
   import qualified Data.Map as M
   import qualified Data.Set as S
-  import Data.List (sort)
+  import Data.List (nub, sort)
 
   type Vertices = S.Set String
   type Clique = S.Set String
@@ -47,7 +47,7 @@ module Solution (solve) where
     let vs = M.keysSet n in
     let es = edges n     in
     let c2 = twoCliques es in
-    let c3 = cliqueUp vs es c2 in
+    let c3 = nub $ cliqueUp vs es c2 in
     let ct = filter tFilter c3 in
       length ct
 
